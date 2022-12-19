@@ -1,32 +1,35 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
+    /* Visit https://aka.ms/tsconfig.json to read more about this file */
+    /* Basic Options */
+    "noImplicitAny": false,
+    "incremental": true /* Enable incremental compilation */,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2021" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,
+    "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
+    "sourceMap": true /* Generates corresponding '.map' file. */,
+    "outDir": "./dist" /* Redirect output structure to the directory. */,
+    // "rootDir": ".",
 
-    "outDir": "./build",
-    "rootDir": "./",
 
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noImplicitReturns": true,
+    /* Strict Type-Checking Options */
+    "strict": true /* Enable all strict type-checking options. */,
+    "strictNullChecks": false,
+    "resolveJsonModule": true,
 
-    "baseUrl": ".",
-    "typeRoots": ["./@types", "./node_modules/@types"],
+    /* Module Resolution Options */
+    "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "src/*": ["src/*"],
+      "*": ["node_modules/*"]
     },
-
-    "esModuleInterop": true,
-    "importsNotUsedAsValues": "preserve",
-
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true
+    "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
+    /* Advanced Options */
+    "skipLibCheck": true /* Skip type checking of declaration files. */,
+    "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
+    "typeRoots": ["./node_modules/@types", "./typings"]
   },
-  "exclude": ["node_modules", "build", "gulpfile.ts"],
-
-  "ts-node": {
-    "transpileOnly": true
-  }
+  "include": [ "**/*.ts", "**/*.tsx"],
+  "exclude": ["**/node_modules", "**/.*/", "**/dist", "**/test"]
 }

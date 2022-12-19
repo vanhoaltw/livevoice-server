@@ -1,11 +1,21 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import { PubSubEngine } from 'graphql-subscriptions';
-import { RedisPubSub } from 'graphql-redis-subscriptions';
-import { createRedisClient } from '@/redis/client';
+import { RedisPubSub } from 'graphql-redis-subscriptions'
+import Redis from 'ioredis'
 
-// If you prefer a different PubSub implementation see:
-// https://www.apollographql.com/docs/apollo-server/data/subscriptions/#pubsub-implementations
-export const pubSubEngine: PubSubEngine = new RedisPubSub({
-  publisher: createRedisClient(),
-  subscriber: createRedisClient(),
-});
+const HOST = process.env.REDIS_HOST || 'localhost'
+const PORT = process.env.REDIS_PORT || '6379'
+
+const options = {
+  host: HOST,
+  port: Number(PORT),
+  retryStrategy: (times: number) => {
+    return Math.min(times * 50, 2000)
+  },
+  ...(process.env.REDIS_PASSWORD && { password: process.env.REDIS_PASSWORD }),
+}
+
+const pubsub = new RedisPubSub({
+  publisher: new Redis(options),
+  subscriber: new Redis(options),
+})
+
+export default pubsub

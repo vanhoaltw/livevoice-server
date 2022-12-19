@@ -1,21 +1,61 @@
-import 'tsconfig-paths/register';
-import { Knex } from 'knex';
-import { env } from '@/config/environment';
+import dotenv from 'dotenv'
 
-const config: Knex.Config = {
-  client: 'pg',
-  connection: env.postgresConnectionUrl,
-  useNullAsDefault: true,
-  migrations: {
-    directory: './src/db/migrations',
-    loadExtensions: ['.js', '.ts'],
+dotenv.config()
+
+/**
+ * @type { Object.<string, import("knex").Knex.Config> }
+ */
+
+export default {
+  development: {
+    client: 'pg',
+    connection: {
+      host: process.env.DATABASE_HOST,
+      port: process.env.DATABASE_PORT,
+      database: process.env.DATABASE_NAME,
+      password: process.env.DATABASE_PASSWORD,
+      user: process.env.DATABASE_USER,
+    },
+    migrations: {
+      tableName: 'knex_migrations',
+      directory: 'migrations',
+    },
   },
-  seeds: {
-    directory: './src/db/seeds',
+
+  staging: {
+    client: 'pg',
+    connection: {
+      host: process.env.DATABASE_HOST,
+      port: process.env.DATABASE_PORT,
+      database: process.env.DATABASE_NAME,
+      password: process.env.DATABASE_PASSWORD,
+      user: process.env.DATABASE_USER,
+    },
+    pool: {
+      min: 2,
+      max: 23,
+    },
+    migrations: {
+      tableName: 'knex_migrations',
+      directory: 'migrations',
+    },
   },
 
-  // Modify this if you want to see the actual SQL queries executed thru knex
-  debug: false,
-};
-
-export default config;
+  production: {
+    connection: {
+      host: process.env.DATABASE_HOST,
+      port: process.env.DATABASE_PORT,
+      database: process.env.DATABASE_NAME,
+      password: process.env.DATABASE_PASSWORD,
+      user: process.env.DATABASE_USER,
+    },
+    pool: {
+      min: 2,
+      max: 23,
+    },
+    migrations: {
+      tableName: 'knex_migrations',
+      directory: 'migrations',
+    },
+  },
+}

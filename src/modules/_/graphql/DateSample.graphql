@@ -1,5 +1,0 @@
-extend type Query {
-  _datetime(input: DateTime): DateTime! @deprecated
-  _date(input: Date): Date! @deprecated
-  _time(input: Time): Time! @deprecated
-}
