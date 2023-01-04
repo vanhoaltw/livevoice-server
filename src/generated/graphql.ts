@@ -49,6 +49,7 @@ export type EditLiveRoomInput = {
   freeMic?: InputMaybe<Scalars['Boolean']>;
   imageUrl?: InputMaybe<Scalars['String']>;
   muteAll?: InputMaybe<Scalars['Boolean']>;
+  notification?: InputMaybe<Scalars['String']>;
   password?: InputMaybe<Scalars['String']>;
   seatLocked?: InputMaybe<Scalars['String']>;
   title?: InputMaybe<Scalars['String']>;
@@ -71,8 +72,10 @@ export type Mutation = {
   _?: Maybe<Scalars['Boolean']>;
   createRoom?: Maybe<Room>;
   editLiveRoom?: Maybe<Room>;
+  editUser?: Maybe<User>;
   joinRoom?: Maybe<RoomAudience>;
   leaveRoom?: Maybe<Scalars['Boolean']>;
+  sendMessage?: Maybe<RoomMessage>;
   startLive?: Maybe<RoomWithToken>;
   stopLive?: Maybe<Room>;
   updateAudience?: Maybe<RoomAudience>;
@@ -90,6 +93,11 @@ export type MutationEditLiveRoomArgs = {
 };
 
 
+export type MutationEditUserArgs = {
+  input: UpdateUserInput;
+};
+
+
 export type MutationJoinRoomArgs = {
   id: Scalars['Int'];
   password?: InputMaybe<Scalars['String']>;
@@ -97,6 +105,12 @@ export type MutationJoinRoomArgs = {
 
 
 export type MutationLeaveRoomArgs = {
+  roomId: Scalars['Int'];
+};
+
+
+export type MutationSendMessageArgs = {
+  input?: InputMaybe<RoomMessageInput>;
   roomId: Scalars['Int'];
 };
 
@@ -124,6 +138,7 @@ export type Query = {
   getRoomAudience?: Maybe<Array<Maybe<RoomAudience>>>;
   me?: Maybe<User>;
   room?: Maybe<Room>;
+  user?: Maybe<User>;
 };
 
 
@@ -139,6 +154,12 @@ export type QueryGetRoomAudienceArgs = {
 
 export type QueryRoomArgs = {
   id: Scalars['Int'];
+};
+
+
+export type QueryUserArgs = {
+  id?: InputMaybe<Scalars['Int']>;
+  username?: InputMaybe<Scalars['String']>;
 };
 
 export type Room = {
@@ -176,6 +197,18 @@ export type RoomAudience = {
   userId: Scalars['Int'];
 };
 
+export type RoomMessage = {
+  __typename?: 'RoomMessage';
+  id?: Maybe<Scalars['String']>;
+  room?: Maybe<Room>;
+  sender?: Maybe<User>;
+  text?: Maybe<Scalars['String']>;
+};
+
+export type RoomMessageInput = {
+  text?: InputMaybe<Scalars['String']>;
+};
+
 export enum RoomMode {
   ChaseImage = 'chaseImage',
   Pairing = 'pairing',
@@ -204,11 +237,17 @@ export type Subscription = {
   __typename?: 'Subscription';
   _?: Maybe<Scalars['Boolean']>;
   audienceChanged: RoomAudience;
+  messageAdded?: Maybe<RoomMessage>;
   roomChanged: Room;
 };
 
 
 export type SubscriptionAudienceChangedArgs = {
+  roomId: Scalars['Int'];
+};
+
+
+export type SubscriptionMessageAddedArgs = {
   roomId: Scalars['Int'];
 };
 
@@ -225,26 +264,40 @@ export type UpdateAudienceInput = {
   seat?: InputMaybe<Scalars['Int']>;
 };
 
+export type UpdateUserInput = {
+  avatarUrl?: InputMaybe<Scalars['String']>;
+  bio?: InputMaybe<Scalars['String']>;
+  birthDay?: InputMaybe<Scalars['String']>;
+  city?: InputMaybe<Scalars['String']>;
+  country?: InputMaybe<Scalars['String']>;
+  displayName?: InputMaybe<Scalars['String']>;
+  favorite?: InputMaybe<Scalars['String']>;
+  gender?: InputMaybe<Gender>;
+  job?: InputMaybe<Scalars['String']>;
+  phone?: InputMaybe<Scalars['String']>;
+  school?: InputMaybe<Scalars['String']>;
+};
+
 export type User = {
   __typename?: 'User';
   avatarUrl?: Maybe<Scalars['String']>;
   bannerUrl?: Maybe<Scalars['String']>;
   bio?: Maybe<Scalars['String']>;
-  birthday?: Maybe<Scalars['Date']>;
+  birthDay?: Maybe<Scalars['Date']>;
   city?: Maybe<Scalars['String']>;
   country?: Maybe<Scalars['String']>;
   displayName?: Maybe<Scalars['String']>;
-  email: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
   emailConfirmed?: Maybe<Scalars['Boolean']>;
   favorite?: Maybe<Scalars['String']>;
   gender?: Maybe<Gender>;
   id: Scalars['Int'];
   job?: Maybe<Scalars['String']>;
   lastActive?: Maybe<Scalars['Date']>;
-  password: Scalars['String'];
+  password?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   school?: Maybe<Scalars['String']>;
-  username: Scalars['String'];
+  username?: Maybe<Scalars['String']>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -333,6 +386,8 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   Room: ResolverTypeWrapper<Room>;
   RoomAudience: ResolverTypeWrapper<RoomAudience>;
+  RoomMessage: ResolverTypeWrapper<RoomMessage>;
+  RoomMessageInput: RoomMessageInput;
   RoomMode: RoomMode;
   RoomStatus: RoomStatus;
   RoomType: RoomType;
@@ -340,6 +395,7 @@ export type ResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
   UpdateAudienceInput: UpdateAudienceInput;
+  UpdateUserInput: UpdateUserInput;
   User: ResolverTypeWrapper<User>;
 }>;
 
@@ -358,10 +414,13 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   Room: Room;
   RoomAudience: RoomAudience;
+  RoomMessage: RoomMessage;
+  RoomMessageInput: RoomMessageInput;
   RoomWithToken: RoomWithToken;
   String: Scalars['String'];
   Subscription: {};
   UpdateAudienceInput: UpdateAudienceInput;
+  UpdateUserInput: UpdateUserInput;
   User: User;
 }>;
 
@@ -399,8 +458,10 @@ export type MutationResolvers<ContextType = MyContext, ParentType extends Resolv
   _?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   createRoom?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<MutationCreateRoomArgs, 'input'>>;
   editLiveRoom?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<MutationEditLiveRoomArgs, 'id' | 'input'>>;
+  editUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationEditUserArgs, 'input'>>;
   joinRoom?: Resolver<Maybe<ResolversTypes['RoomAudience']>, ParentType, ContextType, RequireFields<MutationJoinRoomArgs, 'id'>>;
   leaveRoom?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationLeaveRoomArgs, 'roomId'>>;
+  sendMessage?: Resolver<Maybe<ResolversTypes['RoomMessage']>, ParentType, ContextType, RequireFields<MutationSendMessageArgs, 'roomId'>>;
   startLive?: Resolver<Maybe<ResolversTypes['RoomWithToken']>, ParentType, ContextType, RequireFields<MutationStartLiveArgs, 'id'>>;
   stopLive?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<MutationStopLiveArgs, 'id'>>;
   updateAudience?: Resolver<Maybe<ResolversTypes['RoomAudience']>, ParentType, ContextType, RequireFields<MutationUpdateAudienceArgs, 'roomId'>>;
@@ -413,6 +474,7 @@ export type QueryResolvers<ContextType = MyContext, ParentType extends Resolvers
   getRoomAudience?: Resolver<Maybe<Array<Maybe<ResolversTypes['RoomAudience']>>>, ParentType, ContextType, RequireFields<QueryGetRoomAudienceArgs, 'roomId'>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   room?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<QueryRoomArgs, 'id'>>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUserArgs>>;
 }>;
 
 export type RoomResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Room'] = ResolversParentTypes['Room']> = ResolversObject<{
@@ -450,6 +512,14 @@ export type RoomAudienceResolvers<ContextType = MyContext, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type RoomMessageResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['RoomMessage'] = ResolversParentTypes['RoomMessage']> = ResolversObject<{
+  id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  room?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType>;
+  sender?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  text?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type RoomWithTokenResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['RoomWithToken'] = ResolversParentTypes['RoomWithToken']> = ResolversObject<{
   room?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType>;
   token?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -459,6 +529,7 @@ export type RoomWithTokenResolvers<ContextType = MyContext, ParentType extends R
 export type SubscriptionResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
   _?: SubscriptionResolver<Maybe<ResolversTypes['Boolean']>, "_", ParentType, ContextType>;
   audienceChanged?: SubscriptionResolver<ResolversTypes['RoomAudience'], "audienceChanged", ParentType, ContextType, RequireFields<SubscriptionAudienceChangedArgs, 'roomId'>>;
+  messageAdded?: SubscriptionResolver<Maybe<ResolversTypes['RoomMessage']>, "messageAdded", ParentType, ContextType, RequireFields<SubscriptionMessageAddedArgs, 'roomId'>>;
   roomChanged?: SubscriptionResolver<ResolversTypes['Room'], "roomChanged", ParentType, ContextType, RequireFields<SubscriptionRoomChangedArgs, 'roomId'>>;
 }>;
 
@@ -466,21 +537,21 @@ export type UserResolvers<ContextType = MyContext, ParentType extends ResolversP
   avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bannerUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  birthday?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  birthDay?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   displayName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   emailConfirmed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   favorite?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gender?: Resolver<Maybe<ResolversTypes['Gender']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   job?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   lastActive?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  password?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   school?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -494,6 +565,7 @@ export type Resolvers<ContextType = MyContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   Room?: RoomResolvers<ContextType>;
   RoomAudience?: RoomAudienceResolvers<ContextType>;
+  RoomMessage?: RoomMessageResolvers<ContextType>;
   RoomWithToken?: RoomWithTokenResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

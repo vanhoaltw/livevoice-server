@@ -132,16 +132,17 @@ exports.default = {
             }
         },
         stopLive: async (_parent, { id }, { me }) => {
-            let room = await models_1.RoomModel.query().findById(id);
+            let room = await models_1.RoomModel.query().withGraphFetched('[creator]').findById(id);
             if (!room)
                 throw new apollo_server_express_1.ValidationError('INVALID_ROOM');
-            const isOwner = room.audience.some((u) => u.role === graphql_1.AudienceRole.Owner && u.id === me.id);
+            const isOwner = room.creator.id === me.id;
             if (!isOwner)
                 throw new apollo_server_express_1.ValidationError('INVALID_PERMISSION');
             room = await room.$query().patchAndFetch({
                 status: graphql_1.RoomStatus.Close,
                 end: new Date().toISOString(),
             });
+            pubsub_1.default.publish(constants_1.SUBCRIPTION_ROOM_CHANGED, { roomChanged: room });
             return room;
         },
     },
@@ -153,7 +154,7 @@ exports.default = {
         },
         roomChanged: {
             subscribe: (0, graphql_subscriptions_1.withFilter)((_, args) => pubsub_1.default.asyncIterator(constants_1.SUBCRIPTION_ROOM_CHANGED), (payload, variables) => {
-                return payload.roomChanged.roomId === variables.roomId;
+                return payload.roomChanged.id === variables.roomId;
             }),
         },
     },

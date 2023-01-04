@@ -67,6 +67,7 @@ exports.default = `
         password: String
         imageUrl: String
         seatLocked: String
+        notification: String
     }
 
     input UpdateAudienceInput{

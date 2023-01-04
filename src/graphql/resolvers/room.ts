@@ -135,14 +135,15 @@ export default {
       }
     },
     stopLive: async (_parent, { id }, { me }) => {
-      let room = await RoomModel.query().findById(id)
+      let room = await RoomModel.query().withGraphFetched('[creator]').findById(id)
       if (!room) throw new ValidationError('INVALID_ROOM')
-      const isOwner = room.audience.some((u) => u.role === AudienceRole.Owner && u.id === me.id)
+      const isOwner = room.creator.id === me.id
       if (!isOwner) throw new ValidationError('INVALID_PERMISSION')
       room = await room.$query().patchAndFetch({
         status: RoomStatus.Close,
         end: new Date().toISOString(),
       })
+      pubsub.publish(SUBCRIPTION_ROOM_CHANGED, { roomChanged: room })
       return room
     },
   },
@@ -160,7 +161,7 @@ export default {
       subscribe: withFilter(
         (_, args) => pubsub.asyncIterator(SUBCRIPTION_ROOM_CHANGED),
         (payload, variables) => {
-          return payload.roomChanged.roomId === variables.roomId
+          return payload.roomChanged.id === variables.roomId
         }
       ),
     },
