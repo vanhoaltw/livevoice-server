@@ -28,7 +28,7 @@ class RoomModel extends Base_1.default {
                 type: { type: 'string', enum: Object.values(graphql_1.RoomType), default: graphql_1.RoomType.Public },
                 password: { type: ['string', 'null'] },
                 playbackId: { type: ['string'] },
-                creatorId: { type: 'number' },
+                creatorId: { type: 'integer' },
                 allowChat: { type: 'boolean' },
                 freeMic: { type: 'boolean' },
                 mode: { type: ['string', 'null'] },

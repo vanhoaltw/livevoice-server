@@ -22,6 +22,14 @@ async function up(knex) {
         table.string('job');
         table.string('school');
         table.string('favorite');
+        table.integer('followingCount');
+        table.integer('followerCount');
+        table.string('facebookUrl');
+        table.string('twitterUrl');
+        table.string('twitchUrl');
+        table.string('telegramUrl');
+        table.string('instagramUrl');
+        table.string('websiteUrl');
         table.timestamp('lastActive').defaultTo(knex.fn.now());
         table.timestamp('created').defaultTo(knex.fn.now());
         table.timestamp('updated').defaultTo(knex.fn.now());

@@ -17,14 +17,19 @@ function uploadEndpoint() {
 }
 const routes = (0, express_1.Router)();
 routes.post('/image', uploadEndpoint(), async (req, res) => {
-    const response = await axios_1.default.post(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, req.body, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    if (response?.data?.status === 200) {
-        res.status(200).json({ success: true, data: response?.data?.data?.display_url });
+    try {
+        const response = await axios_1.default.post(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, req.body, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        if (response?.data?.status === 200) {
+            res.status(200).json({ success: true, data: response?.data?.data?.display_url });
+        }
+        else {
+            res.status(response?.data?.status).json(response?.data);
+        }
     }
-    else {
-        res.status(response?.data?.status).json(response?.data);
+    catch (error) {
+        res.status(500).json(error);
     }
 });
 exports.default = routes;

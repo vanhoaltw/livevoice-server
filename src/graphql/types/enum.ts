@@ -27,4 +27,9 @@ export default `
         pairing
         chaseImage
     }
+
+    enum FollowAction  {
+        follow
+        unfollow
+    }
 `

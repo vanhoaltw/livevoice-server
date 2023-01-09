@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RoomType = exports.RoomStatus = exports.RoomMode = exports.Gender = exports.CacheControlScope = exports.AudienceRole = void 0;
+exports.RoomType = exports.RoomStatus = exports.RoomMode = exports.ReactPostAction = exports.PostType = exports.PostStatus = exports.Gender = exports.FollowAction = exports.CacheControlScope = exports.AudienceRole = void 0;
 var AudienceRole;
 (function (AudienceRole) {
     AudienceRole["Audience"] = "audience";
@@ -12,11 +12,32 @@ var CacheControlScope;
     CacheControlScope["Private"] = "PRIVATE";
     CacheControlScope["Public"] = "PUBLIC";
 })(CacheControlScope = exports.CacheControlScope || (exports.CacheControlScope = {}));
+var FollowAction;
+(function (FollowAction) {
+    FollowAction["Follow"] = "follow";
+    FollowAction["Unfollow"] = "unfollow";
+})(FollowAction = exports.FollowAction || (exports.FollowAction = {}));
 var Gender;
 (function (Gender) {
     Gender["Boy"] = "boy";
     Gender["Girl"] = "girl";
 })(Gender = exports.Gender || (exports.Gender = {}));
+var PostStatus;
+(function (PostStatus) {
+    PostStatus["Private"] = "private";
+    PostStatus["Public"] = "public";
+    PostStatus["Social"] = "social";
+})(PostStatus = exports.PostStatus || (exports.PostStatus = {}));
+var PostType;
+(function (PostType) {
+    PostType["Album"] = "album";
+    PostType["Video"] = "video";
+})(PostType = exports.PostType || (exports.PostType = {}));
+var ReactPostAction;
+(function (ReactPostAction) {
+    ReactPostAction["Like"] = "like";
+    ReactPostAction["Unlike"] = "unlike";
+})(ReactPostAction = exports.ReactPostAction || (exports.ReactPostAction = {}));
 var RoomMode;
 (function (RoomMode) {
     RoomMode["ChaseImage"] = "chaseImage";

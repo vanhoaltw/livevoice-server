@@ -13,6 +13,6 @@ POST  http://localhost:4000/api/auth/login
 Content-Type: application/json
 
 {
-    "password": "2662001",
-    "email": "admin@gmail.com"
+    "password": "123456",
+    "email": "nitphu2@gmail.com"
 }

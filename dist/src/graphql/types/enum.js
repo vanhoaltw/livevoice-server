@@ -29,5 +29,10 @@ exports.default = `
         pairing
         chaseImage
     }
+
+    enum FollowAction  {
+        follow
+        unfollow
+    }
 `;
 //# sourceMappingURL=enum.js.map
