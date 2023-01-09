@@ -78,14 +78,14 @@ exports.default = `
         isMuted: Boolean
     }
   
-   type Query {
+    extend type Query {
         room(id: Int!): Room
         getLiveRoom: GetLiveRoom
         getLiveStream(roomId: Int!): RoomWithToken
         getRoomAudience(roomId: Int!): [RoomAudience]
     }
 
-    type Mutation {
+    extend type Mutation {
         createRoom(input: CreateRoomInput!): Room
         startLive(id: Int!): RoomWithToken
         stopLive(id: Int!): Room
@@ -95,7 +95,7 @@ exports.default = `
         leaveRoom(roomId: Int!): Boolean
     }
 
-    type Subscription {
+    extend type Subscription {
         roomChanged(roomId: Int!): Room!
         audienceChanged(roomId: Int!): RoomAudience!
     }

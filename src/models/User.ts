@@ -23,6 +23,18 @@ class UserModel extends BaseModel {
   school?: string
   favorite?: string
   lastActive?: Date
+  facebookUrl: String
+  twitterUrl: String
+  twitchUrl: String
+  telegramUrl: String
+  instagramUrl: String
+  websiteUrl: String
+
+  isFollowed?: boolean
+  isFollowing?: boolean
+
+  followerCount?: Number
+  followingCount?: Number
 
   static tableName: string = 'user'
 
@@ -52,6 +64,14 @@ class UserModel extends BaseModel {
         school: { type: ['string', 'null'] },
         favorite: { type: ['string', 'null'] },
         timezoneId: { type: ['string', 'null'] },
+        followingCount: { type: 'integer', default: 0 },
+        followerCount: { type: 'integer', default: 0 },
+        facebookUrl: { type: ['string', 'null'] },
+        twitterUrl: { type: ['string', 'null'] },
+        twitchUrl: { type: ['string', 'null'] },
+        telegramUrl: { type: ['string', 'null'] },
+        instagramUrl: { type: ['string', 'null'] },
+        websiteUrl: { type: ['string', 'null'] },
       },
     }
   }

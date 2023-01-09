@@ -10,7 +10,6 @@ exports.default = {
         },
         user: async (_parent, { id, username }, { me }) => {
             let user = null;
-            console.log({ username });
             if (id)
                 user = await models_1.UserModel.query().findById(id);
             else if (username)
@@ -22,12 +21,27 @@ exports.default = {
     },
     Mutation: {
         editUser: async (_parent, { input }, { me }) => {
+            if (!me?.id)
+                throw new apollo_server_errors_1.PersistedQueryNotFoundError();
             const user = await models_1.UserModel.query().findById(me?.id);
             if (!user)
                 throw new apollo_server_errors_1.PersistedQueryNotFoundError();
-            const result = await models_1.UserModel.query().upsertGraphAndFetch({ id: user.id, ...input });
-            console.log({ result, input });
+            const result = await models_1.UserModel.query().upsertGraphAndFetch({ ...input, id: me.id });
             return result;
+        },
+    },
+    User: {
+        isFollowing: async (user, _, { me }) => {
+            if (!me || user.id === me?.id)
+                return null;
+            const isFollowing = await models_1.UserConnectionModel.query().findOne({ followerId: me.id, followingId: user.id });
+            return !!isFollowing;
+        },
+        isFollowed: async (user, _, { me }) => {
+            if (!me || user.id === me?.id)
+                return null;
+            const isFollowed = await models_1.UserConnectionModel.query().findOne({ followerId: user.id, followingId: me.id });
+            return !!isFollowed;
         },
     },
 };

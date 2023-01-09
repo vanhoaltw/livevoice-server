@@ -8,3 +8,5 @@ export const CODE_ERROR = {
   WRONG_ROOM_PASSWORD: 'Wrong room password',
   PERMISSION_DENIED: 'Permission denied',
 }
+
+export const PAGE_SIZE = 20

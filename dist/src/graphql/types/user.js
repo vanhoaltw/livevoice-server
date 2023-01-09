@@ -7,7 +7,7 @@ exports.default = `
     emailConfirmed: Boolean
     username: String
     password: String
-    birthDay: Date
+    birthDay: String
     gender: Gender
     displayName: String
     bio: String
@@ -19,7 +19,20 @@ exports.default = `
     job: String
     school: String
     favorite: String
-    lastActive: Date
+    lastActive: String
+    facebookUrl: String
+    twitterUrl: String
+    twitchUrl: String
+    telegramUrl: String
+    instagramUrl: String
+    websiteUrl: String
+
+    isFollowed: Boolean
+    isFollowing: Boolean
+    isBlocked: Boolean
+
+    followerCount: Int
+    followingCount: Int
   }
 
   input UpdateUserInput{
@@ -34,14 +47,21 @@ exports.default = `
     job: String
     school: String
     favorite: String
-}
+    email: String
+    facebookUrl: String
+    twitterUrl: String
+    twitchUrl: String
+    telegramUrl: String
+    instagramUrl: String
+    websiteUrl: String
+  }
 
-  type Query {
+  extend type Query {
     me: User
     user(id: Int, username: String): User
   }
 
-  type Mutation {
+  extend type Mutation {
     editUser(input: UpdateUserInput!): User
   }
 `;

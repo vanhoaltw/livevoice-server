@@ -12,11 +12,11 @@ exports.default = `
         text: String
     }
   
-    type Mutation {
+    extend type Mutation {
         sendMessage( roomId: Int!, input: RoomMessageInput): RoomMessage
     }
 
-    type Subscription {
+    extend type Subscription {
         messageAdded(roomId: Int!): RoomMessage
     }
 `;

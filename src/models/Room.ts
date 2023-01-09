@@ -46,7 +46,7 @@ class RoomModel extends BaseModel {
         type: { type: 'string', enum: Object.values(RoomType), default: RoomType.Public },
         password: { type: ['string', 'null'] },
         playbackId: { type: ['string'] },
-        creatorId: { type: 'number' },
+        creatorId: { type: 'integer' },
         allowChat: { type: 'boolean' },
         freeMic: { type: 'boolean' },
         mode: { type: ['string', 'null'] },

@@ -30,6 +30,22 @@ export enum CacheControlScope {
   Public = 'PUBLIC'
 }
 
+export type CreatePostCommentInput = {
+  authorId?: InputMaybe<Scalars['Int']>;
+  content?: InputMaybe<Scalars['String']>;
+  postId?: InputMaybe<Scalars['Int']>;
+};
+
+export type CreatePostInput = {
+  description?: InputMaybe<Scalars['String']>;
+  photos?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  source?: InputMaybe<Scalars['JSON']>;
+  status?: InputMaybe<PostStatus>;
+  thumbnail?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<PostType>;
+};
+
 export type CreateRoomInput = {
   comunityId?: InputMaybe<Scalars['Int']>;
   creatorId: Scalars['Int'];
@@ -56,6 +72,11 @@ export type EditLiveRoomInput = {
   type?: InputMaybe<RoomType>;
 };
 
+export enum FollowAction {
+  Follow = 'follow',
+  Unfollow = 'unfollow'
+}
+
 export enum Gender {
   Boy = 'boy',
   Girl = 'girl'
@@ -70,11 +91,18 @@ export type GetLiveRoom = {
 export type Mutation = {
   __typename?: 'Mutation';
   _?: Maybe<Scalars['Boolean']>;
+  commentPost?: Maybe<Post>;
+  createPost?: Maybe<Post>;
   createRoom?: Maybe<Room>;
+  deletePost?: Maybe<Scalars['Boolean']>;
+  deletePostComment?: Maybe<Scalars['Boolean']>;
   editLiveRoom?: Maybe<Room>;
+  editPost?: Maybe<Post>;
   editUser?: Maybe<User>;
+  follow?: Maybe<Scalars['Boolean']>;
   joinRoom?: Maybe<RoomAudience>;
   leaveRoom?: Maybe<Scalars['Boolean']>;
+  reactPost?: Maybe<Post>;
   sendMessage?: Maybe<RoomMessage>;
   startLive?: Maybe<RoomWithToken>;
   stopLive?: Maybe<Room>;
@@ -82,8 +110,29 @@ export type Mutation = {
 };
 
 
+export type MutationCommentPostArgs = {
+  input?: InputMaybe<CreatePostCommentInput>;
+  postId: Scalars['Int'];
+};
+
+
+export type MutationCreatePostArgs = {
+  input?: InputMaybe<CreatePostInput>;
+};
+
+
 export type MutationCreateRoomArgs = {
   input: CreateRoomInput;
+};
+
+
+export type MutationDeletePostArgs = {
+  postId: Scalars['Int'];
+};
+
+
+export type MutationDeletePostCommentArgs = {
+  commentId: Scalars['Int'];
 };
 
 
@@ -93,8 +142,20 @@ export type MutationEditLiveRoomArgs = {
 };
 
 
+export type MutationEditPostArgs = {
+  input?: InputMaybe<CreatePostInput>;
+  postId: Scalars['Int'];
+};
+
+
 export type MutationEditUserArgs = {
   input: UpdateUserInput;
+};
+
+
+export type MutationFollowArgs = {
+  action?: InputMaybe<FollowAction>;
+  userId: Scalars['Int'];
 };
 
 
@@ -106,6 +167,12 @@ export type MutationJoinRoomArgs = {
 
 export type MutationLeaveRoomArgs = {
   roomId: Scalars['Int'];
+};
+
+
+export type MutationReactPostArgs = {
+  action?: InputMaybe<ReactPostAction>;
+  postId: Scalars['Int'];
 };
 
 
@@ -130,13 +197,79 @@ export type MutationUpdateAudienceArgs = {
   roomId: Scalars['Int'];
 };
 
+export type Post = {
+  __typename?: 'Post';
+  author?: Maybe<User>;
+  authorId?: Maybe<Scalars['Int']>;
+  commentCount?: Maybe<Scalars['Int']>;
+  content?: Maybe<PostContent>;
+  created?: Maybe<Scalars['Date']>;
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['Int'];
+  likeCount?: Maybe<Scalars['Int']>;
+  status?: Maybe<PostStatus>;
+  title?: Maybe<Scalars['String']>;
+  updated?: Maybe<Scalars['Date']>;
+};
+
+export type PostComment = {
+  __typename?: 'PostComment';
+  author?: Maybe<User>;
+  authorId?: Maybe<Scalars['Int']>;
+  commentCount?: Maybe<Scalars['Int']>;
+  content?: Maybe<Scalars['String']>;
+  id: Scalars['Int'];
+  likeCount?: Maybe<Scalars['Int']>;
+  postId?: Maybe<Scalars['Int']>;
+};
+
+export type PostContent = {
+  __typename?: 'PostContent';
+  photos?: Maybe<Array<Maybe<Scalars['String']>>>;
+  source?: Maybe<Scalars['JSON']>;
+  thumbnail?: Maybe<Scalars['String']>;
+  type?: Maybe<PostType>;
+};
+
+export type PostPagination = {
+  __typename?: 'PostPagination';
+  currentPage?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+  results?: Maybe<Array<Maybe<Post>>>;
+  total?: Maybe<Scalars['Int']>;
+};
+
+export type PostReaction = {
+  __typename?: 'PostReaction';
+  author?: Maybe<User>;
+  authorId?: Maybe<Scalars['Int']>;
+  id: Scalars['Int'];
+  postId?: Maybe<Scalars['Int']>;
+};
+
+export enum PostStatus {
+  Private = 'private',
+  Public = 'public',
+  Social = 'social'
+}
+
+export enum PostType {
+  Album = 'album',
+  Video = 'video'
+}
+
 export type Query = {
   __typename?: 'Query';
   _?: Maybe<Scalars['Boolean']>;
   getLiveRoom?: Maybe<GetLiveRoom>;
   getLiveStream?: Maybe<RoomWithToken>;
+  getMyPosts?: Maybe<Array<Maybe<Post>>>;
+  getPostComments?: Maybe<Array<Maybe<PostComment>>>;
+  getPostReactions?: Maybe<Array<Maybe<PostReaction>>>;
+  getPosts?: Maybe<PostPagination>;
   getRoomAudience?: Maybe<Array<Maybe<RoomAudience>>>;
   me?: Maybe<User>;
+  post?: Maybe<Post>;
   room?: Maybe<Room>;
   user?: Maybe<User>;
 };
@@ -147,8 +280,39 @@ export type QueryGetLiveStreamArgs = {
 };
 
 
+export type QueryGetMyPostsArgs = {
+  page?: InputMaybe<Scalars['Int']>;
+  pageSize?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+};
+
+
+export type QueryGetPostCommentsArgs = {
+  postId: Scalars['Int'];
+  sort?: InputMaybe<Scalars['JSON']>;
+};
+
+
+export type QueryGetPostReactionsArgs = {
+  postId: Scalars['Int'];
+};
+
+
+export type QueryGetPostsArgs = {
+  filter?: InputMaybe<Scalars['JSON']>;
+  page?: InputMaybe<Scalars['Int']>;
+  pageSize?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+};
+
+
 export type QueryGetRoomAudienceArgs = {
   roomId: Scalars['Int'];
+};
+
+
+export type QueryPostArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -161,6 +325,11 @@ export type QueryUserArgs = {
   id?: InputMaybe<Scalars['Int']>;
   username?: InputMaybe<Scalars['String']>;
 };
+
+export enum ReactPostAction {
+  Like = 'like',
+  Unlike = 'unlike'
+}
 
 export type Room = {
   __typename?: 'Room';
@@ -271,11 +440,18 @@ export type UpdateUserInput = {
   city?: InputMaybe<Scalars['String']>;
   country?: InputMaybe<Scalars['String']>;
   displayName?: InputMaybe<Scalars['String']>;
+  email?: InputMaybe<Scalars['String']>;
+  facebookUrl?: InputMaybe<Scalars['String']>;
   favorite?: InputMaybe<Scalars['String']>;
   gender?: InputMaybe<Gender>;
+  instagramUrl?: InputMaybe<Scalars['String']>;
   job?: InputMaybe<Scalars['String']>;
   phone?: InputMaybe<Scalars['String']>;
   school?: InputMaybe<Scalars['String']>;
+  telegramUrl?: InputMaybe<Scalars['String']>;
+  twitchUrl?: InputMaybe<Scalars['String']>;
+  twitterUrl?: InputMaybe<Scalars['String']>;
+  websiteUrl?: InputMaybe<Scalars['String']>;
 };
 
 export type User = {
@@ -283,21 +459,41 @@ export type User = {
   avatarUrl?: Maybe<Scalars['String']>;
   bannerUrl?: Maybe<Scalars['String']>;
   bio?: Maybe<Scalars['String']>;
-  birthDay?: Maybe<Scalars['Date']>;
+  birthDay?: Maybe<Scalars['String']>;
   city?: Maybe<Scalars['String']>;
   country?: Maybe<Scalars['String']>;
   displayName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   emailConfirmed?: Maybe<Scalars['Boolean']>;
+  facebookUrl?: Maybe<Scalars['String']>;
   favorite?: Maybe<Scalars['String']>;
+  followerCount?: Maybe<Scalars['Int']>;
+  followingCount?: Maybe<Scalars['Int']>;
   gender?: Maybe<Gender>;
   id: Scalars['Int'];
+  instagramUrl?: Maybe<Scalars['String']>;
+  isBlocked?: Maybe<Scalars['Boolean']>;
+  isFollowed?: Maybe<Scalars['Boolean']>;
+  isFollowing?: Maybe<Scalars['Boolean']>;
   job?: Maybe<Scalars['String']>;
-  lastActive?: Maybe<Scalars['Date']>;
+  lastActive?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   school?: Maybe<Scalars['String']>;
+  telegramUrl?: Maybe<Scalars['String']>;
+  twitchUrl?: Maybe<Scalars['String']>;
+  twitterUrl?: Maybe<Scalars['String']>;
   username?: Maybe<Scalars['String']>;
+  websiteUrl?: Maybe<Scalars['String']>;
+};
+
+export type UserConnection = {
+  __typename?: 'UserConnection';
+  follower?: Maybe<User>;
+  followerId: Scalars['Int'];
+  following?: Maybe<User>;
+  followingId: Scalars['Int'];
+  id: Scalars['Int'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -373,17 +569,28 @@ export type ResolversTypes = ResolversObject<{
   AudienceRole: AudienceRole;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CacheControlScope: CacheControlScope;
+  CreatePostCommentInput: CreatePostCommentInput;
+  CreatePostInput: CreatePostInput;
   CreateRoomInput: CreateRoomInput;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   EditLiveRoomInput: EditLiveRoomInput;
+  FollowAction: FollowAction;
   Gender: Gender;
   GetLiveRoom: ResolverTypeWrapper<GetLiveRoom>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
   JSONObject: ResolverTypeWrapper<Scalars['JSONObject']>;
   Mutation: ResolverTypeWrapper<{}>;
+  Post: ResolverTypeWrapper<Post>;
+  PostComment: ResolverTypeWrapper<PostComment>;
+  PostContent: ResolverTypeWrapper<PostContent>;
+  PostPagination: ResolverTypeWrapper<PostPagination>;
+  PostReaction: ResolverTypeWrapper<PostReaction>;
+  PostStatus: PostStatus;
+  PostType: PostType;
   Query: ResolverTypeWrapper<{}>;
+  ReactPostAction: ReactPostAction;
   Room: ResolverTypeWrapper<Room>;
   RoomAudience: ResolverTypeWrapper<RoomAudience>;
   RoomMessage: ResolverTypeWrapper<RoomMessage>;
@@ -397,11 +604,14 @@ export type ResolversTypes = ResolversObject<{
   UpdateAudienceInput: UpdateAudienceInput;
   UpdateUserInput: UpdateUserInput;
   User: ResolverTypeWrapper<User>;
+  UserConnection: ResolverTypeWrapper<UserConnection>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
+  CreatePostCommentInput: CreatePostCommentInput;
+  CreatePostInput: CreatePostInput;
   CreateRoomInput: CreateRoomInput;
   Date: Scalars['Date'];
   DateTime: Scalars['DateTime'];
@@ -411,6 +621,11 @@ export type ResolversParentTypes = ResolversObject<{
   JSON: Scalars['JSON'];
   JSONObject: Scalars['JSONObject'];
   Mutation: {};
+  Post: Post;
+  PostComment: PostComment;
+  PostContent: PostContent;
+  PostPagination: PostPagination;
+  PostReaction: PostReaction;
   Query: {};
   Room: Room;
   RoomAudience: RoomAudience;
@@ -422,6 +637,7 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateAudienceInput: UpdateAudienceInput;
   UpdateUserInput: UpdateUserInput;
   User: User;
+  UserConnection: UserConnection;
 }>;
 
 export type CacheControlDirectiveArgs = {
@@ -456,23 +672,85 @@ export interface JsonObjectScalarConfig extends GraphQLScalarTypeConfig<Resolver
 
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  commentPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationCommentPostArgs, 'postId'>>;
+  createPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, Partial<MutationCreatePostArgs>>;
   createRoom?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<MutationCreateRoomArgs, 'input'>>;
+  deletePost?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'postId'>>;
+  deletePostComment?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeletePostCommentArgs, 'commentId'>>;
   editLiveRoom?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<MutationEditLiveRoomArgs, 'id' | 'input'>>;
+  editPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationEditPostArgs, 'postId'>>;
   editUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationEditUserArgs, 'input'>>;
+  follow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationFollowArgs, 'userId'>>;
   joinRoom?: Resolver<Maybe<ResolversTypes['RoomAudience']>, ParentType, ContextType, RequireFields<MutationJoinRoomArgs, 'id'>>;
   leaveRoom?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationLeaveRoomArgs, 'roomId'>>;
+  reactPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationReactPostArgs, 'postId'>>;
   sendMessage?: Resolver<Maybe<ResolversTypes['RoomMessage']>, ParentType, ContextType, RequireFields<MutationSendMessageArgs, 'roomId'>>;
   startLive?: Resolver<Maybe<ResolversTypes['RoomWithToken']>, ParentType, ContextType, RequireFields<MutationStartLiveArgs, 'id'>>;
   stopLive?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<MutationStopLiveArgs, 'id'>>;
   updateAudience?: Resolver<Maybe<ResolversTypes['RoomAudience']>, ParentType, ContextType, RequireFields<MutationUpdateAudienceArgs, 'roomId'>>;
 }>;
 
+export type PostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
+  author?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  authorId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  commentCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['PostContent']>, ParentType, ContextType>;
+  created?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  likeCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['PostStatus']>, ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updated?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PostCommentResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PostComment'] = ResolversParentTypes['PostComment']> = ResolversObject<{
+  author?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  authorId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  commentCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  likeCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  postId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PostContentResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PostContent'] = ResolversParentTypes['PostContent']> = ResolversObject<{
+  photos?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  source?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['PostType']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PostPaginationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PostPagination'] = ResolversParentTypes['PostPagination']> = ResolversObject<{
+  currentPage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  pageSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  results?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
+  total?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PostReactionResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PostReaction'] = ResolversParentTypes['PostReaction']> = ResolversObject<{
+  author?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  authorId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  postId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   _?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   getLiveRoom?: Resolver<Maybe<ResolversTypes['GetLiveRoom']>, ParentType, ContextType>;
   getLiveStream?: Resolver<Maybe<ResolversTypes['RoomWithToken']>, ParentType, ContextType, RequireFields<QueryGetLiveStreamArgs, 'roomId'>>;
+  getMyPosts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, Partial<QueryGetMyPostsArgs>>;
+  getPostComments?: Resolver<Maybe<Array<Maybe<ResolversTypes['PostComment']>>>, ParentType, ContextType, RequireFields<QueryGetPostCommentsArgs, 'postId'>>;
+  getPostReactions?: Resolver<Maybe<Array<Maybe<ResolversTypes['PostReaction']>>>, ParentType, ContextType, RequireFields<QueryGetPostReactionsArgs, 'postId'>>;
+  getPosts?: Resolver<Maybe<ResolversTypes['PostPagination']>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getRoomAudience?: Resolver<Maybe<Array<Maybe<ResolversTypes['RoomAudience']>>>, ParentType, ContextType, RequireFields<QueryGetRoomAudienceArgs, 'roomId'>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
   room?: Resolver<Maybe<ResolversTypes['Room']>, ParentType, ContextType, RequireFields<QueryRoomArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUserArgs>>;
 }>;
@@ -537,21 +815,41 @@ export type UserResolvers<ContextType = MyContext, ParentType extends ResolversP
   avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bannerUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  birthDay?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  birthDay?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   displayName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   emailConfirmed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  facebookUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   favorite?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  followerCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  followingCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   gender?: Resolver<Maybe<ResolversTypes['Gender']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  instagramUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  isBlocked?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  isFollowed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  isFollowing?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   job?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  lastActive?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  lastActive?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   password?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   school?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  telegramUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  twitchUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  twitterUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  websiteUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type UserConnectionResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['UserConnection'] = ResolversParentTypes['UserConnection']> = ResolversObject<{
+  follower?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  followerId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  following?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  followingId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -562,6 +860,11 @@ export type Resolvers<ContextType = MyContext> = ResolversObject<{
   JSON?: GraphQLScalarType;
   JSONObject?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
+  Post?: PostResolvers<ContextType>;
+  PostComment?: PostCommentResolvers<ContextType>;
+  PostContent?: PostContentResolvers<ContextType>;
+  PostPagination?: PostPaginationResolvers<ContextType>;
+  PostReaction?: PostReactionResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Room?: RoomResolvers<ContextType>;
   RoomAudience?: RoomAudienceResolvers<ContextType>;
@@ -569,6 +872,7 @@ export type Resolvers<ContextType = MyContext> = ResolversObject<{
   RoomWithToken?: RoomWithTokenResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserConnection?: UserConnectionResolvers<ContextType>;
 }>;
 
 export type DirectiveResolvers<ContextType = MyContext> = ResolversObject<{
