@@ -20,6 +20,7 @@ export async function up(knex: Knex): Promise<void> {
       table.integer('postId').references('post.id').onDelete('CASCADE')
       table.integer('authorId').references('user.id').onDelete('CASCADE')
       table.string('content')
+      table.json('attachment')
       table.boolean('isEdited')
       table.integer('likeCount').defaultTo(0)
       table.integer('commentCount').defaultTo(0)
@@ -36,5 +37,5 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  return knex.schema.dropTable('post').dropTable('post_comment').dropTable('post_reaction')
+  return knex.schema.dropTable('post_comment').dropTable('post_reaction').dropTable('post')
 }

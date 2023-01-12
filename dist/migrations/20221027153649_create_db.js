@@ -83,7 +83,7 @@ async function up(knex) {
 }
 exports.up = up;
 async function down(knex) {
-    return knex.schema.dropTable('user').dropTable('room').dropTable('room_connection').dropTable('room_audience');
+    return knex.schema.dropTable('room_audience').dropTable('room').dropTable('user');
     // .dropTable('tag')
     // .dropTable('tag_connection')
 }

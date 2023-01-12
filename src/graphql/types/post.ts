@@ -5,6 +5,11 @@ export default `
         private
     }
 
+    enum AttachType {
+        album
+        video
+    }
+
     enum PostType { 
         album
         video
@@ -27,12 +32,12 @@ export default `
 
     input CreatePostCommentInput { 
         postId: Int
-        authorId: Int
         content: String
+        photos: [String]
     }
 
     type PostContent {
-        type: PostType
+        type: AttachType
         photos: [String]
         thumbnail: String
         source: JSON
@@ -46,6 +51,7 @@ export default `
         likeCount: Int
         commentCount: Int
         status: PostStatus
+        isReacted: Boolean
         authorId: Int
         author: User
         created: Date
@@ -57,6 +63,7 @@ export default `
         postId: Int
         authorId: Int
         content: String
+        attachment: PostContent
         likeCount: Int
         commentCount: Int
         author: User
@@ -76,11 +83,17 @@ export default `
         pageSize: Int
     }
 
+    type PostCommentPagination { 
+        results: [PostComment]
+        total: Int
+        currentPage: Int
+        pageSize: Int
+    }
+
     extend type Query {
         post(id: Int!): Post
         getPosts(filter: JSON, page: Int, pageSize: Int, sort: JSON): PostPagination
-        getMyPosts(page: Int, pageSize: Int, sort: JSON): [Post]
-        getPostComments(postId: Int!, sort: JSON): [PostComment]
+        getPostComments(postId: Int!, sort: JSON): PostCommentPagination
         getPostReactions(postId: Int!): [PostReaction]
     }
 

@@ -8,7 +8,7 @@ const constants_1 = require("../settings/constants");
 const PostComment_1 = __importDefault(require("../models/PostComment"));
 const PostComment_2 = __importDefault(require("../models/PostComment"));
 class PostCommentService extends baseServiec_1.default {
-    async getComments(postId, sort, page, pageSize = constants_1.PAGE_SIZE) {
+    async getComments(postId, sort, page = 0, pageSize = constants_1.PAGE_SIZE) {
         const _query = PostComment_1.default.query().withGraphFetched('[author]').where({ postId });
         return this.sortJson(_query, sort).page(page, pageSize);
     }

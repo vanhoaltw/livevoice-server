@@ -4,7 +4,7 @@ import PostCommentModel from '../models/PostComment'
 import PostComment from '../models/PostComment'
 
 class PostCommentService extends BaseService<PostComment> {
-  async getComments(postId: number, sort: [], page: number, pageSize = PAGE_SIZE) {
+  async getComments(postId: number, sort: [], page: number = 0, pageSize = PAGE_SIZE) {
     const _query = PostCommentModel.query().withGraphFetched('[author]').where({ postId })
     return this.sortJson(_query, sort).page(page, pageSize)
   }

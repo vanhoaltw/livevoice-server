@@ -21,6 +21,7 @@ async function up(knex) {
         table.integer('postId').references('post.id').onDelete('CASCADE');
         table.integer('authorId').references('user.id').onDelete('CASCADE');
         table.string('content');
+        table.json('attachment');
         table.boolean('isEdited');
         table.integer('likeCount').defaultTo(0);
         table.integer('commentCount').defaultTo(0);
@@ -37,7 +38,7 @@ async function up(knex) {
 }
 exports.up = up;
 async function down(knex) {
-    return knex.schema.dropTable('post').dropTable('post_comment').dropTable('post_reaction');
+    return knex.schema.dropTable('post_comment').dropTable('post_reaction').dropTable('post');
 }
 exports.down = down;
 //# sourceMappingURL=20230106121012_user_post_db.js.map

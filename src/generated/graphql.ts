@@ -19,6 +19,11 @@ export type Scalars = {
   JSONObject: any;
 };
 
+export enum AttachType {
+  Album = 'album',
+  Video = 'video'
+}
+
 export enum AudienceRole {
   Audience = 'audience',
   Owner = 'owner',
@@ -31,8 +36,8 @@ export enum CacheControlScope {
 }
 
 export type CreatePostCommentInput = {
-  authorId?: InputMaybe<Scalars['Int']>;
   content?: InputMaybe<Scalars['String']>;
+  photos?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   postId?: InputMaybe<Scalars['Int']>;
 };
 
@@ -206,6 +211,7 @@ export type Post = {
   created?: Maybe<Scalars['Date']>;
   description?: Maybe<Scalars['String']>;
   id: Scalars['Int'];
+  isReacted?: Maybe<Scalars['Boolean']>;
   likeCount?: Maybe<Scalars['Int']>;
   status?: Maybe<PostStatus>;
   title?: Maybe<Scalars['String']>;
@@ -214,6 +220,7 @@ export type Post = {
 
 export type PostComment = {
   __typename?: 'PostComment';
+  attachment?: Maybe<PostContent>;
   author?: Maybe<User>;
   authorId?: Maybe<Scalars['Int']>;
   commentCount?: Maybe<Scalars['Int']>;
@@ -223,12 +230,20 @@ export type PostComment = {
   postId?: Maybe<Scalars['Int']>;
 };
 
+export type PostCommentPagination = {
+  __typename?: 'PostCommentPagination';
+  currentPage?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+  results?: Maybe<Array<Maybe<PostComment>>>;
+  total?: Maybe<Scalars['Int']>;
+};
+
 export type PostContent = {
   __typename?: 'PostContent';
   photos?: Maybe<Array<Maybe<Scalars['String']>>>;
   source?: Maybe<Scalars['JSON']>;
   thumbnail?: Maybe<Scalars['String']>;
-  type?: Maybe<PostType>;
+  type?: Maybe<AttachType>;
 };
 
 export type PostPagination = {
@@ -263,8 +278,7 @@ export type Query = {
   _?: Maybe<Scalars['Boolean']>;
   getLiveRoom?: Maybe<GetLiveRoom>;
   getLiveStream?: Maybe<RoomWithToken>;
-  getMyPosts?: Maybe<Array<Maybe<Post>>>;
-  getPostComments?: Maybe<Array<Maybe<PostComment>>>;
+  getPostComments?: Maybe<PostCommentPagination>;
   getPostReactions?: Maybe<Array<Maybe<PostReaction>>>;
   getPosts?: Maybe<PostPagination>;
   getRoomAudience?: Maybe<Array<Maybe<RoomAudience>>>;
@@ -277,13 +291,6 @@ export type Query = {
 
 export type QueryGetLiveStreamArgs = {
   roomId: Scalars['Int'];
-};
-
-
-export type QueryGetMyPostsArgs = {
-  page?: InputMaybe<Scalars['Int']>;
-  pageSize?: InputMaybe<Scalars['Int']>;
-  sort?: InputMaybe<Scalars['JSON']>;
 };
 
 
@@ -566,6 +573,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  AttachType: AttachType;
   AudienceRole: AudienceRole;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CacheControlScope: CacheControlScope;
@@ -584,6 +592,7 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
   PostComment: ResolverTypeWrapper<PostComment>;
+  PostCommentPagination: ResolverTypeWrapper<PostCommentPagination>;
   PostContent: ResolverTypeWrapper<PostContent>;
   PostPagination: ResolverTypeWrapper<PostPagination>;
   PostReaction: ResolverTypeWrapper<PostReaction>;
@@ -623,6 +632,7 @@ export type ResolversParentTypes = ResolversObject<{
   Mutation: {};
   Post: Post;
   PostComment: PostComment;
+  PostCommentPagination: PostCommentPagination;
   PostContent: PostContent;
   PostPagination: PostPagination;
   PostReaction: PostReaction;
@@ -698,6 +708,7 @@ export type PostResolvers<ContextType = MyContext, ParentType extends ResolversP
   created?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  isReacted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   likeCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   status?: Resolver<Maybe<ResolversTypes['PostStatus']>, ParentType, ContextType>;
   title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -706,6 +717,7 @@ export type PostResolvers<ContextType = MyContext, ParentType extends ResolversP
 }>;
 
 export type PostCommentResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PostComment'] = ResolversParentTypes['PostComment']> = ResolversObject<{
+  attachment?: Resolver<Maybe<ResolversTypes['PostContent']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   authorId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   commentCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -716,11 +728,19 @@ export type PostCommentResolvers<ContextType = MyContext, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PostCommentPaginationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PostCommentPagination'] = ResolversParentTypes['PostCommentPagination']> = ResolversObject<{
+  currentPage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  pageSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  results?: Resolver<Maybe<Array<Maybe<ResolversTypes['PostComment']>>>, ParentType, ContextType>;
+  total?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PostContentResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PostContent'] = ResolversParentTypes['PostContent']> = ResolversObject<{
   photos?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   source?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  type?: Resolver<Maybe<ResolversTypes['PostType']>, ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['AttachType']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -744,8 +764,7 @@ export type QueryResolvers<ContextType = MyContext, ParentType extends Resolvers
   _?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   getLiveRoom?: Resolver<Maybe<ResolversTypes['GetLiveRoom']>, ParentType, ContextType>;
   getLiveStream?: Resolver<Maybe<ResolversTypes['RoomWithToken']>, ParentType, ContextType, RequireFields<QueryGetLiveStreamArgs, 'roomId'>>;
-  getMyPosts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, Partial<QueryGetMyPostsArgs>>;
-  getPostComments?: Resolver<Maybe<Array<Maybe<ResolversTypes['PostComment']>>>, ParentType, ContextType, RequireFields<QueryGetPostCommentsArgs, 'postId'>>;
+  getPostComments?: Resolver<Maybe<ResolversTypes['PostCommentPagination']>, ParentType, ContextType, RequireFields<QueryGetPostCommentsArgs, 'postId'>>;
   getPostReactions?: Resolver<Maybe<Array<Maybe<ResolversTypes['PostReaction']>>>, ParentType, ContextType, RequireFields<QueryGetPostReactionsArgs, 'postId'>>;
   getPosts?: Resolver<Maybe<ResolversTypes['PostPagination']>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getRoomAudience?: Resolver<Maybe<Array<Maybe<ResolversTypes['RoomAudience']>>>, ParentType, ContextType, RequireFields<QueryGetRoomAudienceArgs, 'roomId'>>;
@@ -862,6 +881,7 @@ export type Resolvers<ContextType = MyContext> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   PostComment?: PostCommentResolvers<ContextType>;
+  PostCommentPagination?: PostCommentPaginationResolvers<ContextType>;
   PostContent?: PostContentResolvers<ContextType>;
   PostPagination?: PostPaginationResolvers<ContextType>;
   PostReaction?: PostReactionResolvers<ContextType>;

@@ -1,6 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RoomType = exports.RoomStatus = exports.RoomMode = exports.ReactPostAction = exports.PostType = exports.PostStatus = exports.Gender = exports.FollowAction = exports.CacheControlScope = exports.AudienceRole = void 0;
+exports.RoomType = exports.RoomStatus = exports.RoomMode = exports.ReactPostAction = exports.PostType = exports.PostStatus = exports.Gender = exports.FollowAction = exports.CacheControlScope = exports.AudienceRole = exports.AttachType = void 0;
+var AttachType;
+(function (AttachType) {
+    AttachType["Album"] = "album";
+    AttachType["Video"] = "video";
+})(AttachType = exports.AttachType || (exports.AttachType = {}));
 var AudienceRole;
 (function (AudienceRole) {
     AudienceRole["Audience"] = "audience";

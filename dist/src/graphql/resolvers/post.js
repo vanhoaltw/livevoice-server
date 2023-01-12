@@ -11,18 +11,19 @@ const postService_1 = __importDefault(require("../../services/postService"));
 const models_1 = require("../../models");
 exports.default = {
     Query: {
+        post: async (_, { id }, { me }) => {
+            const post = await models_1.PostModel.query().findById(id).withGraphFetched('[author]');
+            if (!post)
+                throw new apollo_server_express_1.ValidationError('INVALID_POST');
+            return post;
+        },
         getPosts: async (_, { filter, page, pageSize, sort }) => {
             const posts = await postService_1.default.getPosts(filter, sort, page, pageSize);
             return posts;
         },
-        getMyPosts: async (_, { sort, page, pageSize }, { me }) => {
-            if (!me)
-                throw new apollo_server_express_1.AuthenticationError('USER_INVALID');
-            const posts = await postService_1.default.getMyPosts(me.id, sort, page, pageSize);
-            return posts;
-        },
         getPostComments: async (_, { postId, sort, page, pageSize }, { me }) => {
             const postComments = await postCommentService_1.default.getComments(postId, sort, page, pageSize);
+            console.log({ postComments });
             return postComments;
         },
         getPostReactions: async (_, { postId, page, pageSize }) => {
@@ -40,7 +41,6 @@ exports.default = {
                 thumbnail: input.thumbnail,
                 ...(input.source ? { source: input.source } : {}),
             };
-            console.log({ input, content, me });
             const params = { title: input?.title, description: input?.description, authorId: me.id, content };
             const newPost = await models_1.PostModel.query().insertGraph(params).withGraphFetched('[author]');
             return newPost;
@@ -64,7 +64,7 @@ exports.default = {
                 throw new apollo_server_express_1.ValidationError('INVALID_POST');
             if (post.authorId !== me.id)
                 throw new apollo_server_express_1.ValidationError('INVALID_PERMISSION');
-            await models_1.PostModel.query().delete().where({ postId });
+            await models_1.PostModel.query().delete().where({ id: postId });
             return true;
         },
         reactPost: async (_, { postId, action }, { me }) => {
@@ -79,7 +79,7 @@ exports.default = {
                     await models_1.PostReactionModel.query(trx).insert({ postId, authorId: me.id });
                     return true;
                 }
-                else if (action === graphql_1.ReactPostAction.Like) {
+                else if (action === graphql_1.ReactPostAction.Unlike) {
                     await models_1.PostModel.query(trx).findById(postId).decrement('likeCount', 1);
                     await models_1.PostReactionModel.query(trx).delete().where({ postId, authorId: me.id });
                     return true;
@@ -94,9 +94,13 @@ exports.default = {
             if (!post)
                 throw new apollo_server_express_1.ValidationError('INVALID_POST');
             return models_1.PostReactionModel.transaction(async (trx) => {
-                const newComment = await models_1.PostCommentModel.query(trx)
-                    .insertGraph({ ...input, postId, authorId: me.id })
-                    .withGraphFetched('[author]');
+                const params = {
+                    postId,
+                    authorId: me.id,
+                    content: input?.content,
+                    attachment: { photos: input?.photos, type: graphql_1.AttachType.Album },
+                };
+                const newComment = await models_1.PostCommentModel.query(trx).insertGraph(params).withGraphFetched('[author]');
                 await models_1.PostModel.query(trx).findById(postId).increment('commentCount', 1);
                 return newComment;
             });
@@ -112,8 +116,16 @@ exports.default = {
                 throw new apollo_server_express_1.ValidationError('INVALID_PERMISSION');
             }
             post = await post.$query().decrement('commentCount', 1);
-            await models_1.PostCommentModel.query().delete().where({ commentId });
+            await models_1.PostCommentModel.query().delete().where({ id: commentId });
             return true;
+        },
+    },
+    Post: {
+        isReacted: async (post, _, { me }) => {
+            if (!me || !post)
+                return null;
+            const isReacted = await models_1.PostReactionModel.query().findOne({ postId: post.id, authorId: me.id });
+            return !!isReacted;
         },
     },
 };
