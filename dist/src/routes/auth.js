@@ -19,13 +19,11 @@ routes.post('/register', async (req, res) => {
             username,
             displayName: username,
             password: models_1.UserModel.generateHash(password),
+            lastActive: new Date(),
         });
         if (!newUser)
             throw Error('USER NOT EXIST');
-        const newUserValue = await models_1.UserModel.query().findById(newUser.id).patch({ lastActive: new Date() });
-        return res
-            .status(200)
-            .json({ success: true, token: models_1.UserModel.jsonToToken({ email, password }), user: newUserValue });
+        return res.status(200).json({ success: true, token: models_1.UserModel.jsonToToken({ email, password }), user: newUser });
     }
     catch (err) {
         if (err instanceof Error) {

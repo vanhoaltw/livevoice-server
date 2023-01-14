@@ -20,13 +20,11 @@ routes.post('/register', async (req: Request, res: Response) => {
       username,
       displayName: username,
       password: UserModel.generateHash(password),
+      lastActive: new Date(),
     })
 
     if (!newUser) throw Error('USER NOT EXIST')
-    const newUserValue = await UserModel.query().findById(newUser.id).patch({ lastActive: new Date() })
-    return res
-      .status(200)
-      .json({ success: true, token: UserModel.jsonToToken({ email, password }), user: newUserValue })
+    return res.status(200).json({ success: true, token: UserModel.jsonToToken({ email, password }), user: newUser })
   } catch (err) {
     if (err instanceof Error) {
       res.status(500).send({ success: false, code: 401, message: err.message })
